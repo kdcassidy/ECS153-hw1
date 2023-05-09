@@ -57,21 +57,36 @@ int main(int argc, char const *argv[]) {
         break;
       }
       clean_input_str(iLine);
-      apint_array[i] = uint64_to_APInt(atoi(iLine));
+      APInt *new_apint = uint64_to_APInt(atoi(iLine));
+      if (new_apint == NULL) {
+        printf("NULL returned\n");
+      } else {
+        apint_array[i] = new_apint;
+      } 
     } else if (!strcmp(iLine, "HEX_STRING")) {
       if(getline(&iLine, &buflen, input) == -1){
         error = true;
         break;
       }
       clean_input_str(iLine);
-      apint_array[i] = hex_to_APInt(iLine);
+      APInt *new_apint = hex_to_APInt(iLine);
+      if (new_apint == NULL) {
+        printf("NULL returned\n");
+      } else {
+        apint_array[i] = new_apint;
+      } 
     } else if (!strcmp(iLine, "CLONE")) {
       if(getline(&iLine, &buflen, input) == -1) {
         error = true;
         break;
       }
       clean_input_str(iLine);
-      apint_array[i] = clone_APInt(apint_array[atoi(iLine)]);
+      APInt *new_apint = clone_APInt(apint_array[atoi(iLine)]);
+      if (new_apint == NULL) {
+        printf("NULL returned\n");
+      } else {
+        apint_array[i] = new_apint;
+      } 
     } else {
       error = true;
       break;
@@ -101,7 +116,6 @@ int main(int argc, char const *argv[]) {
       int src = atoi(strtok(NULL, " "));
       uint64_t k = (uint64_t)strtoull(strtok(NULL, " "), NULL, 10);
       left_shift_APInt(apint_array, dst, src, k);
-      //printf("dst: %d, src: %d, k: %lu\n", dst, src, k);
     } else if (!strcmp(iLine, "ADD")) {
       if(getline(&iLine, &buflen, input) == -1) {
         error = true;
@@ -126,9 +140,9 @@ int main(int argc, char const *argv[]) {
   }
 
   for (int i = 0; i < n; i++) {
-    printf("Destroying %d\n", i);
     destroy_APInt(apint_array[i]);
   }
+  free(iLine);
   
   // Close the files we opened.
   if (outputGiven)
