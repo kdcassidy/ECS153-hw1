@@ -143,6 +143,16 @@ int main(int argc, char const *argv[]) {
       int op1 = atoi(strtok(NULL, " "));
       int op2 = atoi(strtok(NULL, " "));
       mul_APInts(apint_array[dst], apint_array[op1], apint_array[op2]);
+    } else if (!strcmp(iLine, "POW")) {
+      if(getline(&iLine, &buflen, input) == -1) {
+        error = true;
+        break;
+      }
+      clean_input_str(iLine);
+      int dst = atoi(strtok(iLine, " "));
+      int src = atoi(strtok(NULL, " "));
+      uint64_t k = (uint64_t)strtoull(strtok(NULL, " "), NULL, 10);
+      pow_APInt(apint_array[dst], apint_array[src], k);
     }
   }
 

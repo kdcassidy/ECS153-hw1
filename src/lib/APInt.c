@@ -228,6 +228,47 @@ void mul_APInts(APInt *dst, APInt *op1, APInt *op2) {
   free(res);
 }
 
+void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squaring
+  //printf("Start of pow\n");
+  // Declare empty APInt
+  // Allocating bytes in res is dependent on k, and is mostly handled by mult
+  // Thanks to class discussion, I know that free(NULL) is legitimate **must be initialized**
+  APInt *res = (APInt *)malloc(sizeof(APInt));
+  res->bytes = NULL;
+
+  // To power is to multiply repetitively. log(n) can be achieved by creating a recursive tree
+  // x^4 == x * x * x * x = x^2 * x * x == x^3 * x == x^4   or
+  // x^4 == x * x * x * x = x^2 * x^2 == x^4
+
+  if (k == 0) {
+    res->size = 1;
+    res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+    res->bytes[0] = 1;
+  } else if (k == 1) { // Probably unnecessary but I don't want to convolute things
+    res->size = src->size;
+    res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+    memcpy(res->bytes, src->bytes, src->size * sizeof(uint8_t));
+  } else { // square for now
+    //printf("In ELSE\n");
+    APInt *temp = (APInt *)malloc(sizeof(APInt));
+    temp->bytes = NULL;
+    pow_APInt(temp, src, 1);
+    //printf("After first POW\n");
+    mul_APInts(res, temp, temp);
+    //printf("After first mul\n");
+    destroy_APInt(temp);
+  }
+
+  free(dst->bytes);
+    //printf("got here\n");
+  dst->size = res->size;
+  dst->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+  memcpy(dst->bytes, res->bytes, res->size * sizeof(uint8_t));
+
+  free(res->bytes);
+  free(res);
+}
+
 void destroy_APInt(APInt *apint) {
   if (apint) {
       free(apint->bytes);
