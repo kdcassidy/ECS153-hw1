@@ -27,6 +27,7 @@ void add_APInts(APInt **array, int dst, int op1, int op2);
 void mul_UInt(APInt *dst, APInt *src, uint64_t k);
 void mul_APInts(APInt *dst, APInt *op1, APInt *op2);
 void pow_APInt(APInt *dst, APInt *src, uint64_t k);
+void cmp_APInts(APInt *op1, APInt *op2, FILE *output);
 
 int print_APInt(APInt *apint, FILE *output);
 

@@ -228,7 +228,7 @@ void mul_APInts(APInt *dst, APInt *op1, APInt *op2) {
   free(res);
 }
 
-void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squaring
+void pow_APInt(APInt *dst, APInt *src, uint64_t k) {
   // Declare empty APInt
   // Allocating bytes in res is dependent on k, and is mostly handled by mult
   // Thanks to class discussion, I know that free(NULL) is legitimate **must be initialized**
@@ -247,13 +247,20 @@ void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squar
     res->size = src->size;
     res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
     memcpy(res->bytes, src->bytes, src->size * sizeof(uint8_t));
-  } else { // square for now
+  } else {
     APInt *temp = (APInt *)malloc(sizeof(APInt));
     temp->bytes = NULL;
     pow_APInt(temp, src, k/2);
     mul_APInts(res, temp, temp);
-    print_APInt(res, stdout);
     destroy_APInt(temp);
+
+    if (k % 2) { // if odd
+      APInt *temp = (APInt *)malloc(sizeof(APInt));
+      temp->bytes = NULL;
+      mul_APInts(temp, res, src);
+      destroy_APInt(res);
+      res = temp;
+    }
   }
 
   free(dst->bytes);
@@ -263,6 +270,24 @@ void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squar
 
   free(res->bytes);
   free(res);
+}
+
+void cmp_APInts(APInt *op1, APInt *op2, FILE *output) {
+  int cmp = 0;
+  if (op1->size > op2->size) {
+    cmp = 1;
+  } else if (op1->size < op2->size) {
+    cmp = -1;
+  } else { // Same size
+    for(int i = 0; i < op1->size && !cmp; i++) {
+      if (op1->bytes[i] > op2->bytes[i]) {
+        cmp = 1;
+      } else if (op1->bytes[i] < op2->bytes[i]) {
+        cmp = -1;
+      }
+    }
+  }
+    fprintf(output, "%d\n", cmp);
 }
 
 void destroy_APInt(APInt *apint) {

@@ -153,6 +153,18 @@ int main(int argc, char const *argv[]) {
       int src = atoi(strtok(NULL, " "));
       uint64_t k = (uint64_t)strtoull(strtok(NULL, " "), NULL, 10);
       pow_APInt(apint_array[dst], apint_array[src], k);
+    } else if (!strcmp(iLine, "CMP")) {
+      if(getline(&iLine, &buflen, input) == -1) {
+        error = true;
+        break;
+      }
+      clean_input_str(iLine);
+      int op1 = atoi(strtok(iLine, " "));
+      int op2 = atoi(strtok(NULL, " "));
+      cmp_APInts(apint_array[op1], apint_array[op2], output);
+    } else {
+      error = true;
+      break;
     }
   }
 
