@@ -229,7 +229,6 @@ void mul_APInts(APInt *dst, APInt *op1, APInt *op2) {
 }
 
 void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squaring
-  //printf("Start of pow\n");
   // Declare empty APInt
   // Allocating bytes in res is dependent on k, and is mostly handled by mult
   // Thanks to class discussion, I know that free(NULL) is legitimate **must be initialized**
@@ -249,18 +248,15 @@ void pow_APInt(APInt *dst, APInt *src, uint64_t k) { // Start testing with squar
     res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
     memcpy(res->bytes, src->bytes, src->size * sizeof(uint8_t));
   } else { // square for now
-    //printf("In ELSE\n");
     APInt *temp = (APInt *)malloc(sizeof(APInt));
     temp->bytes = NULL;
-    pow_APInt(temp, src, 1);
-    //printf("After first POW\n");
+    pow_APInt(temp, src, k/2);
     mul_APInts(res, temp, temp);
-    //printf("After first mul\n");
+    print_APInt(res, stdout);
     destroy_APInt(temp);
   }
 
   free(dst->bytes);
-    //printf("got here\n");
   dst->size = res->size;
   dst->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
   memcpy(dst->bytes, res->bytes, res->size * sizeof(uint8_t));
@@ -288,7 +284,7 @@ int print_APInt(APInt *apint, FILE *output) {
       all_zero_flag = false;
     }
     if (apint->bytes[i] || lsb_zero_flag) {
-      lsb_zero_flag = false;
+      lsb_zero_flag = true;
       charcount += fprintf(output, "%02x", apint->bytes[i]);
     }
   }
