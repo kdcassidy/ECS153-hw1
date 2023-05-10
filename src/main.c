@@ -29,7 +29,6 @@ int main(int argc, char const *argv[]) {
   // This takes in one line at a time
   char *iLine = NULL; // previously [MAX_LEN] (gave errors)
   size_t buflen = 0;
-  //memset(iLine, 0, MAX_LEN);
   int n = 0;
 
   bool error = false;
@@ -37,8 +36,6 @@ int main(int argc, char const *argv[]) {
   // Take n of ints, declares n sized array of APInts
   if(getline(&iLine, &buflen, input) == -1)
     error = true;
-  /*if(!fgets(iLine, MAX_LEN, input))
-    error = true;*/
   n = atoi(iLine);
   APInt *apint_array[n]; // does not need to be malloced or freed
 
@@ -135,7 +132,17 @@ int main(int argc, char const *argv[]) {
       int dst = atoi(strtok(iLine, " "));
       int src = atoi(strtok(NULL, " "));
       uint64_t k = (uint64_t)strtoull(strtok(NULL, " "), NULL, 10);
-      mult_UInt(apint_array[dst], apint_array[src], k);
+      mul_UInt(apint_array[dst], apint_array[src], k);
+    } else if (!strcmp(iLine, "MUL_APINT")) {
+      if(getline(&iLine, &buflen, input) == -1) {
+        error = true;
+        break;
+      }
+      clean_input_str(iLine);
+      int dst = atoi(strtok(iLine, " "));
+      int op1 = atoi(strtok(NULL, " "));
+      int op2 = atoi(strtok(NULL, " "));
+      mul_APInts(apint_array[dst], apint_array[op1], apint_array[op2]);
     }
   }
 

@@ -61,12 +61,12 @@ APInt *hex_to_APInt(char *hex_in) {
   return apint;
 }
 
-APInt *clone_APInt(APInt *src_apint) {
-  APInt *dst_apint = (APInt *)malloc(sizeof(APInt));
-  dst_apint->size = src_apint->size;
-  dst_apint->bytes = (uint8_t *)calloc(src_apint->size, sizeof(uint8_t));
-  memcpy(dst_apint->bytes, src_apint->bytes, src_apint->size * sizeof(uint8_t));
-  return dst_apint;
+APInt *clone_APInt(APInt *src) {
+  APInt *dst = (APInt *)malloc(sizeof(APInt));
+  dst->size = src->size;
+  dst->bytes = (uint8_t *)calloc(src->size, sizeof(uint8_t));
+  memcpy(dst->bytes, src->bytes, src->size * sizeof(uint8_t));
+  return dst;
 }
 
 void left_shift_APInt(APInt **array, int dst, int src, uint64_t k) {
@@ -160,26 +160,69 @@ void add_APInts(APInt **array, int dst, int op1, int op2) {
   free(res);
 }
 
-void mult_UInt(APInt *dst_api, APInt *src_api, uint64_t k) {
+void mul_UInt(APInt *dst, APInt *src, uint64_t k) {
   // Allocate empty APInt
   APInt *res = (APInt *)malloc(sizeof(APInt));
-  res->size = src_api->size + sizeof(uint64_t);
+  res->size = src->size + sizeof(uint64_t);
   res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+  
   uint64_t carry = 0;
-  for (int i = 0; i < src_api->size; i++) {
-    uint64_t prod = ((uint64_t)src_api->bytes[src_api->size - 1 - i] & (uint8_t)0xFF) * (uint64_t)k + carry;
+  for (int i = 0; i < src->size; i++) {
+    uint64_t prod = ((uint64_t)src->bytes[src->size - 1 - i] & (uint8_t)0xFF) * (uint64_t)k + carry;
     res->bytes[res->size - 1 - i] = (uint8_t)(prod & (uint8_t)0xFF);
     carry = prod >> 8;
   }
   for (int i = 0; i < (int)sizeof(uint64_t) && carry; i++) {
-    res->bytes[res->size - src_api->size - 1 - i] = carry & (uint8_t)0xFF;
+    res->bytes[res->size - src->size - 1 - i] = carry & (uint8_t)0xFF;
     carry >>= 8;
   }
 
-  free(dst_api->bytes);
-  dst_api->size = res->size;
-  dst_api->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
-  memcpy(dst_api->bytes, res->bytes, res->size * sizeof(uint8_t));
+  free(dst->bytes);
+  dst->size = res->size;
+  dst->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+  memcpy(dst->bytes, res->bytes, res->size * sizeof(uint8_t));
+
+  free(res->bytes);
+  free(res);
+}
+
+void mul_APInts(APInt *dst, APInt *op1, APInt *op2) {
+  // Allocate empty APInt
+  APInt *res = (APInt *)malloc(sizeof(APInt));
+  res->size = op1->size + op2->size;
+  res->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+  
+  uint64_t carry = 0;
+  for (int i = op1->size - 1; i >= 0; i--) {
+    for (int j = op2->size - 1; j >= 0; j--) {
+      uint64_t prod = (uint64_t)op1->bytes[i] * (uint64_t)op2->bytes[j] + res->bytes[i + j + 1] + carry;
+      res->bytes[i + j + 1] = prod & 0xFF;
+      carry = prod >> 8;
+    }
+    res->bytes[i] += carry;
+    carry = 0;
+  }
+  // Removes leading zeros from multiplication
+  int leading_zeros = 0;
+  for (int i = 0; i < res->size; i++) {
+    if (res->bytes[i] != 0) {
+        break;
+    }
+    leading_zeros++;
+  }
+  if (leading_zeros > 0 && leading_zeros < res->size) {
+    int new_size = res->size - leading_zeros;
+    uint8_t *new_bytes = (uint8_t *)malloc(new_size * sizeof(uint8_t));
+    memcpy(new_bytes, res->bytes + leading_zeros, new_size);
+    free(res->bytes);
+    res->bytes = new_bytes;
+    res->size = new_size;
+  }
+
+  free(dst->bytes);
+  dst->size = res->size;
+  dst->bytes = (uint8_t *)calloc(res->size, sizeof(uint8_t));
+  memcpy(dst->bytes, res->bytes, res->size * sizeof(uint8_t));
 
   free(res->bytes);
   free(res);

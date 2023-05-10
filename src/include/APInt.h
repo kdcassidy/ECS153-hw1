@@ -24,7 +24,8 @@ void destroy_APInt(APInt *apint);
 // Operations
 void left_shift_APInt(APInt **array, int dst, int src, uint64_t k);
 void add_APInts(APInt **array, int dst, int op1, int op2);
-void mult_UInt(APInt *dst_api, APInt *src_api, uint64_t k);
+void mul_UInt(APInt *dst_api, APInt *src_api, uint64_t k);
+void mul_APInts(APInt *dst, APInt *op1, APInt *op2);
 
 int print_APInt(APInt *apint, FILE *output);
 
